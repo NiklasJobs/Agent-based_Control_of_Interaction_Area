@@ -1,8 +1,19 @@
 import heapq
 import numpy as np
-from shapely.geometry import Point, LineString, Polygon
+from shapely.geometry import LineString, Polygon
 
-def gen_one_point_angle_bisect(geofence_corners, min_distance):
+def point_inside_world(point, WIDTH, HEIGHT):
+    """
+    Prüft, ob ein Punkt innerhalb der Weltgrenzen liegt.
+    :param point: Der Punkt als (x, y) Koordinate.
+    :return: True, wenn der Punkt innerhalb der Weltgrenzen liegt, ansonsten False.
+    """
+    x, y = point
+    if 0 <= x <= WIDTH and 0 <= y <= HEIGHT:
+        return True
+    return False
+
+def avoiding_WP_generation(geofence_corners, min_distance):
     """
     Generate one new point at each corner of the geofence so that the point is placed on the bisecting angle.
     :param geofence_corners: The vertices of the geofence as a list of tuples [(x1, y1), (x2, y2), ...].

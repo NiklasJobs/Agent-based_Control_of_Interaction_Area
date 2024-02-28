@@ -1,112 +1,100 @@
-from GEOFENCES import geofences
+from world import obstacles
 import pygame
 import random
 from shapely import Polygon, Point
-from Rover.Geofence_Avoidance import *
+from Rover.communication import *
+from Rover.navigation import *
+from Rover.world_model import *
 
 # Definiere die Farben
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
-# Definiere die Größe der Welt
-WIDTH = 400
-HEIGHT = 400
-
-#minimal distance for Rovers to a Geofence
-MIN_DISTANCE = 5
+#minimal distance for Rovers to a obstacle
+MIN_DISTANCE = 15
 
 # Definiere die Klasse für den Rover
 class Rover:
-    def __init__(self, id, start_position, target_coordinate):
+    def __init__(self, id, start_position, target_coordinate, WIDTH, HEIGHT):
         self.id = id
         self.target_coordinate = target_coordinate
-        self.radius = 10
+        self.radius = 10 #radius for drawing
         self.x, self.y = start_position
         self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        self.move_points = [target_coordinate]  # Liste der Bewegungspunkte mit der Start- und Zielposition initialisieren
-        self.target_point_index = 0  # Index des aktuellen Ziel-Punktes in der Liste
-        self.world_model = []  # Liste, die das interne Weltmodell des Rovers darstellt
-        self.avoiding_WP = []   #List with possible WP, to go around the geofences
-        
-    def point_inside_world(self, point):
-        """
-        Prüft, ob ein Punkt innerhalb der Weltgrenzen liegt.
-        :param point: Der Punkt als (x, y) Koordinate.
-        :return: True, wenn der Punkt innerhalb der Weltgrenzen liegt, ansonsten False.
-        """
-        x, y = point
-        if 0 <= x <= WIDTH and 0 <= y <= HEIGHT:
-            return True
-        return False
-
+        self.move_points = [target_coordinate]  #list of WP that will be used to reach target (initialized with target_coordinat)
+        self.target_point_index = 0  
+        self.world_model = []  #internal world model of the rover
+        self.avoiding_WP = []
+        self.WIDTH = WIDTH
+        self.HEIGHT = HEIGHT
+                
     def move(self):
         if self.move_points:
             current_target_x, current_target_y = self.move_points[0]
 
-            # Berechnung der Richtung zum Ziel
+            #heading to target
             dx = current_target_x - self.x
             dy = current_target_y - self.y
-
-            # Entfernung zum Ziel berechnen
+            #distance to target
             distance_to_target = ((dx ** 2) + (dy ** 2)) ** 0.5
 
-            # Geofence-Erkennung
-            self.geofence_detection()
+            # obstacle detection
+            self.obstacle_detection()
 
-            # Überprüfen, ob das Ziel erreicht ist
-            if distance_to_target <= 1:  # Anpassen der Bedingung entsprechend der gewünschten Genauigkeit
+            #check if target is reached
+            if distance_to_target <= 1:  
                 self.x = current_target_x
                 self.y = current_target_y
-                self.move_points.pop(0)  # Löschen des erreichten Punkts aus der Liste
+                self.move_points.pop(0)  
                 if not self.move_points:
                     print(f"Zielpunkt durch Rover {self.id} erreicht!")
             else:
                 # Bewegung des Rovers zum Ziel
-                speed = 1  # Bewegungsgeschwindigkeit
+                speed = 0.8  # Bewegungsgeschwindigkeit
                 self.x += dx / distance_to_target * speed
                 self.y += dy / distance_to_target * speed
 
-    def geofence_detection(self):
+    def obstacle_detection(self):
                        
-        # Erstelle einen Kreis um den Rover mit einem Radius von 20 Einheiten
-        rover_circle = Point(self.x, self.y).buffer(20)
+        #detection range
+        detection_range = Point(self.x, self.y).buffer(30)
 
-        # Überprüfe, ob der Kreis einen bekannten Geofence schneidet
-        for geofence in geofences:
-            geofence_polygon = Polygon(geofence)
-            if rover_circle.intersects(geofence_polygon):
-                # Wenn der Rover dem Geofence nahe genug kommt, füge ihn zur world_model-Liste hinzu
-                if geofence not in self.world_model:
-                    self.world_model.append(geofence)
-                    #possible_avoiding_WP berechnen
-                    #checken ob die possible_avoiding_WP in nicht in self.world_model liegen und innerhalb der Karte sind --> avoiding_WP
-                    #A_Star mit den avoiding_WP ausführen
-                    #Resultat von A_Star zu move_points hinzufügen
-                    self.possible_avoiding_WP = gen_one_point_angle_bisect(geofence, MIN_DISTANCE) 
-                    
-                    #check if new created possible_avoiding_WP are inside the world --> if yes, apend them to avoiding_WP
-                    for point in self.possible_avoiding_WP:
-                        if self.point_inside_world(point):
-                            self.avoiding_WP.append(point) 
-                    
-                    #check if resulting avoiding_WP are inside any known geofences of world_model --> if yes, remove them from avoiding_WP
-                    self.points_to_remove =[]
-                    for point in self.avoiding_WP:
-                        for geofence in self.world_model:                        
-                            if Polygon(geofence).contains(Point(point)):
-                                self.points_to_remove.append(point) 
-                    for point in self.points_to_remove:
-                        self.avoiding_WP.remove(point)
-                    
-                    #generate path that avoids the known geofences (world_model) 
-                    self.move_points = a_star((self.x, self.y), self.target_coordinate, self.avoiding_WP, self.world_model)
-                    
-
+        #check if obstacles are in sensor range
+        for obstacle in obstacles:
+            if detection_range.intersects(Polygon(obstacle)) and not obstacle_in_world_model(obstacle, self.world_model): #detection of unknown obstacle
+                #world model update
+                if check_overlap(obstacle, self.world_model):
+                    self.i = overlap_index(obstacle, self.world_model)
+                    self.world_model[self.i] = merge(obstacle, self.world_model[self.i])
+                else:
+                    self.world_model.append(obstacle)
+                #end of world model update
+                                                    
+                #navigation
+                self.possible_avoiding_WP =[]
+                for obstacle in self.world_model:
+                    self.possible_avoiding_WP.extend(avoiding_WP_generation(obstacle, MIN_DISTANCE))    #possible_avoiding_WP berechnen
+                self.avoiding_WP = []   #list with possible WP, to go around the obstacles
+                for point in self.possible_avoiding_WP:
+                    if point_inside_world(point, self.WIDTH, self.HEIGHT):
+                        self.avoiding_WP.append(point)  #WP which are inside the world are used
+                self.points_to_remove =[]
+                for point in self.avoiding_WP:
+                    for obstacle in self.world_model:                        
+                        if Polygon(obstacle).contains(Point(point)):
+                            self.points_to_remove.append(point) 
+                for point in self.points_to_remove:
+                    self.avoiding_WP.remove(point)      #WP that are inside an obstacle of WorldModel are removed
+                self.move_points = a_star((self.x, self.y), self.target_coordinate, self.avoiding_WP, self.world_model) #generate path that avoids the known obstacles (world_model) 
+                #end of Navigation
+                
+                #communication
+                communication_to_other_rovers()
+                
+                #end of communication
+                 
+         
     def draw_points(self, screen):
-        """
-        Zeichnet alle Punkte aus avoiding_WP auf den Bildschirm.
-        :param screen: Die Pygame Surface, auf der gezeichnet wird.
-        """
         for point in self.avoiding_WP:
             pygame.draw.circle(screen, BLACK, point, 3)
         
@@ -117,7 +105,6 @@ class Rover:
         screen.blit(text_surface, (self.x - 5, self.y - 5))
 
     def draw_path(self, screen):
-        # Überprüfen, ob es genügend Punkte gibt, um eine Linie zu zeichnen
         if len(self.move_points) < 1:
             return
         current_position = (int(self.x), int(self.y))
