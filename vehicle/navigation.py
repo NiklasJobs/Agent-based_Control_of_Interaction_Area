@@ -1,6 +1,26 @@
 import heapq
 import numpy as np
-from shapely.geometry import LineString, Polygon
+from shapely.geometry import LineString, Polygon, Point
+
+def perform_navigation(obstacle, world_model, x, y, target_coordinate, WIDTH, HEIGHT, MIN_DISTANCE):
+    #navigation
+    possible_avoiding_WP =[]
+    for obstacle in world_model:
+        possible_avoiding_WP.extend(avoiding_WP_generation(obstacle, MIN_DISTANCE))    #possible_avoiding_WP berechnen
+    avoiding_WP = []   #list with possible WP, to go around the obstacles
+    for point in possible_avoiding_WP:
+        if point_inside_world(point, WIDTH, HEIGHT):
+            avoiding_WP.append(point)  #WP which are inside the world are used
+    points_to_remove =[]
+    for point in avoiding_WP:
+        for obstacle in world_model:                        
+            if Polygon(obstacle).contains(Point(point)):
+                points_to_remove.append(point) 
+    for point in points_to_remove:
+        avoiding_WP.remove(point)      #WP that are inside an obstacle of WorldModel are removed
+    move_points = a_star((x, y), target_coordinate, avoiding_WP, world_model) #generate path that avoids the known obstacles (world_model) 
+    return move_points
+    #end of Navigation
 
 def point_inside_world(point, WIDTH, HEIGHT):
     """

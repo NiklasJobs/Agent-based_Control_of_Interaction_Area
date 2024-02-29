@@ -10,6 +10,16 @@ def obstacle_in_world_model(O1, O2):
             return True
     return False
 
+def world_model_update(O1, O2):
+    """
+    Updates (appends) the World Model O2 with the obstacle O1
+    """
+    if check_overlap(O1, O2):
+        i = overlap_index(O1, O2)
+        O2[i] = merge(O1, O2[i])
+    else:
+        O2.append(O1)
+
 def check_overlap(O1, O2):
     """
     Checks if obstacle O1 overlaps with obstacle O2 (world model)
@@ -20,6 +30,13 @@ def check_overlap(O1, O2):
         else:
             return True
     return False
+
+def overlap_index(O1, O2):
+    for i, geofences_in_WM in enumerate(O2):
+        if isinstance(Polygon(O1).union(Polygon(geofences_in_WM)), MultiPolygon):
+            continue
+        else:
+            return i
 
 def merge(O1, O2):
     """
@@ -33,9 +50,3 @@ def merge(O1, O2):
     merged_polygon_points.pop()
     return merged_polygon_points
     
-def overlap_index(O1, O2):
-    for i, geofences_in_WM in enumerate(O2):
-        if isinstance(Polygon(O1).union(Polygon(geofences_in_WM)), MultiPolygon):
-            continue
-        else:
-            return i

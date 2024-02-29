@@ -1,8 +1,9 @@
 from world import obstacles
-from Rover.rover import Rover
+from vehicle.rover.rover import Rover
+from vehicle.draw_functions import *
 import pygame
 
-# Definiere die Farben
+# definition of colours
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
@@ -11,10 +12,10 @@ RED = (255, 0, 0)
 WIDTH = 600
 HEIGHT = 600
 
-# Definiere die Zielkoordinate
+# target coordinate
 TARGET_COORDINATE = (110, 50)
 
-# Definiere die Startpositionen der Rover
+# rover startpositions
 start_positions = {
     1: (150, 170),
     2: (520, 310),
@@ -31,45 +32,59 @@ start_positions = {
 def main():
     pygame.init()
 
-    # Initialisiere das Fenster
+    # initialising the screen
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Rover Simulator")
-
-    # Clock-Objekt zur Steuerung der Framerate
-    #clock = pygame.time.Clock()
-
-    # Erzeuge eine Liste von Rover-Objekten
-    rovers = [Rover(ID, start_positions[ID], TARGET_COORDINATE, WIDTH, HEIGHT) for ID in range(1, 11)]
-
-    # Schriftart und Schriftgröße definieren
+    clock = pygame.time.Clock()
+        
+    # number of rovers
+    number_of_rovers = 5
+    
+    number_of_rovers_in_target = 0
+    rovers = [Rover(ID, start_positions[ID], TARGET_COORDINATE, WIDTH, HEIGHT) for ID in range(1, number_of_rovers + 1)]
+   
     font = pygame.font.Font(None, 16)
-
+    start_time = pygame.time.get_ticks()
+    
     # Main loop
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                
         screen.fill(WHITE)
         
-        # Bewege und zeichne die Rover
+        # move and draw the rovers
         for rover in rovers:
             rover.move()
-            rover.draw_rover(screen)
-            #rover.draw_points(screen)
-            rover.draw_path(screen)
+            draw_rover(rover, screen)
+            draw_path(rover, screen)
+            #draw_avoiding_WP(rover,screen)
+        
+        # check if all rovers reached the target
+        for rover in rovers:
+            if rover.reached_target and not rover.counted:
+                number_of_rovers_in_target += 1
+                rover.counted = True    
+                    
+        if number_of_rovers_in_target >= number_of_rovers:
+            print("All Rovers have reached the target!")
+            elapsed_time = (pygame.time.get_ticks() - start_time) / 1000  
+            print("Eleapsed Time: ", elapsed_time)
+            running = False
 
-        # Zeichne das Ziel (ein Quadrat mit einem "G")
+        # draw the target
         pygame.draw.rect(screen, BLACK, (TARGET_COORDINATE[0]-6, TARGET_COORDINATE[1]-6, 20, 20))
         text_surface = font.render("G", True, WHITE)
         screen.blit(text_surface, (TARGET_COORDINATE[0]-3, TARGET_COORDINATE[1]-3))
 
-        #draw the world with obstacles
+        # draw the world with obstacles
         for obstacle in obstacles:
             pygame.draw.polygon(screen, RED, obstacle)
 
         pygame.display.flip()
-        #clock.tick(10)
+        clock.tick(100)
 
     pygame.quit()
 
