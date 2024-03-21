@@ -2,8 +2,29 @@ import heapq
 import numpy as np
 from shapely.geometry import LineString, Polygon, Point
 
+def obstacle_intersects_path(rover, obstacle, move_points, x, y, MIN_DISTANCE, test):
+    current_position = (x, y)
+    if move_points == []:
+        print("WARNING! Empty move_points!")
+        print("Rover ID: ", rover.id)
+        print("Rover x-position: ", rover.x)
+        print("Rover y-position: ", rover.y)
+        print("Rover reached_target value: ", rover.reached_target)
+        print("Obstacle: ", obstacle)
+        if test == 0:
+            print("obstacle_intersects_path wurde aus der obstacle_detection Methode aufgerufen: test=", test)
+        else:
+            print("obstacle_intersects_path wurde aus der receive_message Methode aufgerufen: test=", test)
+        return False
+    
+    current_path = LineString([current_position] + move_points)
+    obstacle_polygon = Polygon(avoiding_WP_generation(obstacle, MIN_DISTANCE))
+    if obstacle_polygon.intersects(current_path):
+        return True
+    else:
+        return False
+
 def perform_navigation(obstacle, world_model, x, y, target_coordinate, WIDTH, HEIGHT, MIN_DISTANCE):
-    #navigation
     possible_avoiding_WP =[]
     for obstacle in world_model:
         possible_avoiding_WP.extend(avoiding_WP_generation(obstacle, MIN_DISTANCE))    #possible_avoiding_WP berechnen
@@ -20,7 +41,7 @@ def perform_navigation(obstacle, world_model, x, y, target_coordinate, WIDTH, HE
         avoiding_WP.remove(point)      #WP that are inside an obstacle of WorldModel are removed
     move_points = a_star((x, y), target_coordinate, avoiding_WP, world_model) #generate path that avoids the known obstacles (world_model) 
     return move_points
-    #end of Navigation
+    
 
 def point_inside_world(point, WIDTH, HEIGHT):
     """
@@ -74,7 +95,7 @@ def a_star(start, goal, list_of_WP, world_model):
     :param list_of_WP: A list of waypoints (WP), each WP can be reached from any other WP [(x1, y1), (x2, y2), ...].
     :param world_model: A list of geofences where each geofence is defined by its corners.
 
-    :return: The resulting path as a list of waypoints [(x1, y1), (x2, y2), ...].
+    :return: The resulting path as a list of waypoints including start as first item [(x1, y1), (x2, y2), ...].
     """
 
     def heuristic(a, b):
@@ -101,7 +122,7 @@ def a_star(start, goal, list_of_WP, world_model):
         while current in came_from:
             current = came_from[current]
             total_path.insert(0, current)
-        return total_path
+        return total_path[1:]
 
     open_set = []
     heapq.heappush(open_set, (0, start))
@@ -136,5 +157,15 @@ def a_star(start, goal, list_of_WP, world_model):
 
     return []  # Return an empty list if no path is found
 
-
-
+def distance_to_target(move_points, x, y):
+    total_distance = 0
+            
+    if len(move_points) == 1:
+        total_distance = ((x - move_points[0][0]) ** 2 + (y - move_points[0][1]) ** 2) ** 0.5
+    else:
+        total_distance = ((x - move_points[0][0]) ** 2 + (y - move_points[0][1]) ** 2) ** 0.5
+        for i in range(len(move_points) - 1):
+            distance = ((move_points[i+1][0] - move_points[i][0]) ** 2 + (move_points[i+1][1] - move_points[i][1]) ** 2) ** 0.5
+            total_distance += distance
+    
+    return total_distance
