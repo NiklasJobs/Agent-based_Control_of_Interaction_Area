@@ -1,38 +1,44 @@
 import os
 import csv
+import numpy as np
 
-def write_to_file(comm_type, number_of_rovers, data, filename):
-    output_folder = os.path.join(os.getcwd(), 'simulation', 'output_logger')
+def write_rover_times_to_file(NUMBER_OF_ROVERS, number_of_collisions,number_of_communications, Cycles,rover_time_delta, priority, time_at_intersection,throughput,filename):
+    communication_type = None
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    name = os.path.join(script_directory,'communication_type.csv')
+    with open(name, mode='r', newline='', encoding='utf-8') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if row:
+                communication_type = row[0]
+
+    output_folder = os.path.join(os.getcwd(), 'output_logger', 'plotted_data')
     output_path = os.path.join(output_folder, filename)
-    
     with open(output_path, mode='w', newline='') as file:
         writer = csv.writer(file, delimiter=";")
-        writer.writerow([comm_type, "Number of Rovers: ", number_of_rovers])
-        
-        
-        # Bestimme die maximale Anzahl von Testdurchläufen
-        max_length = max(len(d) for d in data)
-        
-        # Schreibe die Kopfzeile (Testdurchläufe)
-        writer.writerow([f'Trial {i+1}' for i in range(max_length)])
-        
-        # Schreibe die Zeiten der Rover in die CSV-Datei
-        for item in data:
-            writer.writerow(item)
-
-
-def plot_network_load(simulation_time, network_load, network_load_line, rovers, active_communications):
-    if round(simulation_time % 0.02, 10) == 0:
-        if network_load_line == len(network_load):
-            network_load.append([])
-        for rover in rovers:
-            active_communications += rover.active_communications
-        network_load[network_load_line].append(active_communications)
-        active_communications = 0
-        network_load_line += 1
-        
-def plot_rover_times(rovers, rover_times, useful_comms, not_useful_comms):
-    for rover in rovers:
-        rover_times[rover.id - 1].append(round(rover.elapsed_time_to_target))
-    rover_times[-2].append(useful_comms)
-    rover_times[-1].append(not_useful_comms)
+        writer.writerow(["Communication Type:", communication_type])
+        writer.writerow(["Number of Rovers: ", NUMBER_OF_ROVERS])
+        writer.writerow([])
+        #max_length = max(len(d) for d in data)
+        writer.writerow([f'Cycle {i}' for i in range(1, Cycles+1) for j in range(3)])
+        collisions_row = []
+        for i in range(Cycles):
+                collisions_row.extend(['Number of Collisions',number_of_collisions[i],''])
+        writer.writerow(collisions_row)
+        communication_row = []
+        for i in range(Cycles):
+                communication_row.extend(['Number of Communication',number_of_communications[i],''])
+        writer.writerow(communication_row)
+        throughput_row = []
+        for i in range(Cycles):
+                throughput_row.extend(['Throughput',throughput[i],''])
+        writer.writerow(throughput_row)
+        header_row = []
+        for i in range(Cycles):
+            header_row.extend(['priority','delay','time at intersection'])
+        writer.writerow(header_row)
+        for i in range(NUMBER_OF_ROVERS):
+            data_row = []
+            for sim_cycle in range(Cycles):
+                data_row.extend([priority[sim_cycle][i],rover_time_delta[sim_cycle][i],time_at_intersection[sim_cycle][i]])
+            writer.writerow(data_row)

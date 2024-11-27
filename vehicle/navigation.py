@@ -2,46 +2,6 @@ import heapq
 import numpy as np
 from shapely.geometry import LineString, Polygon, Point
 
-def obstacle_intersects_path(rover, obstacle, move_points, x, y, MIN_DISTANCE, test):
-    current_position = (x, y)
-    if move_points == []:
-        print("WARNING! Empty move_points!")
-        print("Rover ID: ", rover.id)
-        print("Rover x-position: ", rover.x)
-        print("Rover y-position: ", rover.y)
-        print("Rover reached_target value: ", rover.reached_target)
-        print("Obstacle: ", obstacle)
-        if test == 0:
-            print("obstacle_intersects_path wurde aus der obstacle_detection Methode aufgerufen: test=", test)
-        else:
-            print("obstacle_intersects_path wurde aus der receive_message Methode aufgerufen: test=", test)
-        return False
-    
-    current_path = LineString([current_position] + move_points)
-    obstacle_polygon = Polygon(avoiding_WP_generation(obstacle, MIN_DISTANCE))
-    if obstacle_polygon.intersects(current_path):
-        return True
-    else:
-        return False
-
-def perform_navigation(obstacle, world_model, x, y, target_coordinate, WIDTH, HEIGHT, MIN_DISTANCE):
-    possible_avoiding_WP =[]
-    for obstacle in world_model:
-        possible_avoiding_WP.extend(avoiding_WP_generation(obstacle, MIN_DISTANCE))    #possible_avoiding_WP berechnen
-    avoiding_WP = []   #list with possible WP, to go around the obstacles
-    for point in possible_avoiding_WP:
-        if point_inside_world(point, WIDTH, HEIGHT):
-            avoiding_WP.append(point)  #WP which are inside the world are used
-    points_to_remove =[]
-    for point in avoiding_WP:
-        for obstacle in world_model:                        
-            if Polygon(obstacle).contains(Point(point)):
-                points_to_remove.append(point) 
-    for point in points_to_remove:
-        avoiding_WP.remove(point)      #WP that are inside an obstacle of WorldModel are removed
-    move_points = a_star((x, y), target_coordinate, avoiding_WP, world_model) #generate path that avoids the known obstacles (world_model) 
-    return move_points
-    
 
 def point_inside_world(point, WIDTH, HEIGHT):
     """
@@ -77,15 +37,50 @@ def avoiding_WP_generation(geofence_corners, min_distance):
         # Calculate the bisecting angle between the two vectors (using exterior angle bisect)
         bisecting_vector = vector_next / np.linalg.norm(vector_next) + vector_previous / np.linalg.norm(vector_previous)
         bisecting_vector /= np.linalg.norm(bisecting_vector)
-
         # Compute the new point at a distance of min_distance along the bisecting vector
         new_point = tuple((current_corner - min_distance * bisecting_vector).tolist())
-
         new_points.append(new_point)
-
     return new_points
 
+def worldmodel_intersects_path(world_model, move_points, x, y, MIN_DISTANCE):
+    current_position = (x, y)
+    if move_points:
+        current_path = LineString([current_position] + move_points)
+        for obstacle in world_model:
+            try:
+                obstacle_polygon = Polygon(avoiding_WP_generation(obstacle, MIN_DISTANCE))
+                if obstacle_polygon.intersects(current_path):
+                    return True
+            except Exception as e:
+                #print("Es wurde ein Fehler in world_model_intersects_path geworfen.")
+                #print("world_model lautet: ", world_model)
+                #print("obstacle in world_model, welches den Fehler ausgelöst hat, lautet: ", obstacle)
+                #print("obstacle_polygon lautet", obstacle_polygon)
+                return True
+    else:
+        return False
 
+def perform_navigation(world_model, x, y, target_coordinate, WIDTH, HEIGHT, MIN_DISTANCE,move_points):
+    possible_avoiding_WP =[]
+    for obstacle in world_model:
+        possible_avoiding_WP.extend(avoiding_WP_generation(obstacle, MIN_DISTANCE))    #possible_avoiding_WP berechnen
+    avoiding_WP = []   #list with possible WP, to go around the obstacles
+    for point in possible_avoiding_WP:
+        if point_inside_world(point, WIDTH, HEIGHT):
+            avoiding_WP.append(point)  #WP which are inside the world are used
+    points_to_remove =[]
+    for point in avoiding_WP:
+        for obstacle in world_model:                        
+            if Polygon(obstacle).contains(Point(point)):
+                points_to_remove.append(point) 
+    for point in points_to_remove:
+        avoiding_WP.remove(point)      #WP that are inside an obstacle of WorldModel are removed
+    ################################################################################################
+    if not move_points or worldmodel_intersects_path(world_model, move_points, x, y, MIN_DISTANCE):   #if there are existing MPs that do not cause collisions with obstacles, then keep them, otherwise plan new MPs
+        move_points = a_star((x, y), target_coordinate, avoiding_WP, world_model) #generate path that avoids the known obstacles (world_model) 
+    else: move_points=move_points
+    return move_points
+    
 def a_star(start, goal, list_of_WP, world_model):
     """
     A* algorithm implementation for a graph with geofences.
@@ -157,15 +152,15 @@ def a_star(start, goal, list_of_WP, world_model):
 
     return []  # Return an empty list if no path is found
 
-def distance_to_target(move_points, x, y):
+def distance_to_target(move_points, x, y, target_coordinates):
     total_distance = 0
             
-    if len(move_points) == 1:
-        total_distance = ((x - move_points[0][0]) ** 2 + (y - move_points[0][1]) ** 2) ** 0.5
+    if not move_points:
+        return total_distance
     else:
         total_distance = ((x - move_points[0][0]) ** 2 + (y - move_points[0][1]) ** 2) ** 0.5
         for i in range(len(move_points) - 1):
             distance = ((move_points[i+1][0] - move_points[i][0]) ** 2 + (move_points[i+1][1] - move_points[i][1]) ** 2) ** 0.5
             total_distance += distance
-    
+        total_distance += ((move_points[-1][0] - target_coordinates[0]) **2 + (move_points[-1][1] - target_coordinates[1]) **2) ** 0.5
     return total_distance

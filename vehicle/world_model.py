@@ -48,5 +48,7 @@ def merge(O1, O2):
     simplified_merged_polygon = merged_polygon.simplify(tolerance=1, preserve_topology=False) #get rid of multiple points on the same line
     merged_polygon_points = list(simplified_merged_polygon.exterior.coords)         
     merged_polygon_points.pop()
+    if len(merged_polygon_points) == 5:                 #ensuring that a merged obstacle only includes 4 points
+        merged_polygon_points.pop()
     return merged_polygon_points
     
