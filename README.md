@@ -10,7 +10,7 @@ The second implemented control system is a heterarchical control system consisti
 
 Follow these steps to download and run the project:
 
-1. Download
+#1. Download
 
 Clone the repository to your local machine:
 
