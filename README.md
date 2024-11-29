@@ -47,7 +47,7 @@ When prompted for a username and password, simply press the `Enter` key.
 
 **5. Evaluation**
 
-After all simulation cycles have been executed, certain KPIs are saved in the `rover_times_data.csv` file (in folder output_logger -> plotted_data). These can be used to evaluate the simulation experiments. 
+After all simulation cycles have been executed, certain KPIs are saved in the `rover_times_data.csv` file (in folder output_logger/plotted_data). These can be used to evaluate the simulation experiments. 
 
 ## Requirements
 
