@@ -24,17 +24,21 @@ SEED = 10
 # rover specifics
 NUMBER_OF_ROVERS = 16
 MAX_PRIORITY = 10   #maximum possible initial priority (lowest priority is always 1)
-TIME_ADJUSTMENT = 1     #Time Step for adjustment of rover schedule 
+TIME_ADJUSTMENT = 1     #Time Step for adjustment of rover schedule
+#Max_Speed = {1: 0.2, 2: 0.2, 3: 0.2, 4: 0.2, 5: 0.2, 6: 0.2, 7: 0.2, 8: 0.2, 9: 0.2, 10: 0.2, 11: 0.2, 12: 0.2, 13: 0.2, 14: 0.2, 15: 0.2, 16: 0.2}        #for different rover speeds, you can define indivdual speeds here -> if you adjust the rover speed, the buffer may also need to be adjusted
+Max_Speed = {}   #move speed: 0.1 == 1 m/s == 3,6km/h
+for i in range(NUMBER_OF_ROVERS):
+    Max_Speed[i+1] = 0.2            #all rover have the same speed of 2 m/s
 
 COMM_TYPE = "No_Comm"                  # choices: No_Comm, Timing_Selective, Content_Selective, Receiver_Selective, Integrated, Full_Comm
 INITIAL_DISTANCE = 30                    # initial distance to any obstacles
-#SAFTEY_RADIUS = {1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5, 8: 5, 9: 5, 10: 5, 11: 5, 12: 5, 13: 5, 14: 5, 15: 5, 16: 5}
-#Buffer = {1: 0.75, 2: 0.75, 3: 0.75, 4: 0.75, 5: 0.75, 6: 0.75, 7: 0.75, 8: 0.75, 9: 0.75, 10: 0.75, 11: 0.75, 12: 0.75, 13: 0.75, 14: 0.75, 15: 0.75, 16: 0.75}
+#RADIUS = {1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5, 8: 5, 9: 5, 10: 5, 11: 5, 12: 5, 13: 5, 14: 5, 15: 5, 16: 5}            #for different rover radii, you can define an indivdual radius for each rover here
+#Buffer = {1: 0.75, 2: 0.75, 3: 0.75, 4: 0.75, 5: 0.75, 6: 0.75, 7: 0.75, 8: 0.75, 9: 0.75, 10: 0.75, 11: 0.75, 12: 0.75, 13: 0.75, 14: 0.75, 15: 0.75, 16: 0.75}   #for different rover buffers, you can define indivdual buffers here
 RADIUS = {}
 Buffer = {}
 for i in range(NUMBER_OF_ROVERS):
-    RADIUS [i+1] = 5
-    Buffer[i+1] = 0.75
+    RADIUS [i+1] = 5                 #all rover have the same radius of 0.5 m
+    Buffer[i+1] = 0.75               #all rover have the same buffer of 0.75 s
 
 # internal simulation time step
 TIME_STEP = 0.01
