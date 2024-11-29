@@ -10,7 +10,7 @@ import os
  
  
 MIN_DISTANCE = 10                  # minimal distance for an avoiding WP around an obstacle for Rovers
-MAX_SPEED = 0.2                         # move speed: 0.1 == 1 m/s == 3,6km/h
+#MAX_SPEED = 0.2                         # move speed: 0.1 == 1 m/s == 3,6km/h
 MAX_MEMORY_COMM_CANDIDATES = 3      # memory limit for comm_candidates
  
  
@@ -18,7 +18,7 @@ MAX_MEMORY_COMM_CANDIDATES = 3      # memory limit for comm_candidates
 class Rover:
     instantiated_rovers = {}
     
-    def __init__(self, id, start_position, target_coordinates, WIDTH, HEIGHT, COMM_TYPE, sim_time, move_points, RADIUS, route, WAITING_POINT, KP_ROUTE, init_priority,target_time, buffer, simulation_cycle):
+    def __init__(self, id, start_position, target_coordinates, WIDTH, HEIGHT, COMM_TYPE, sim_time, move_points, RADIUS, route, WAITING_POINT, KP_ROUTE, init_priority,target_time, buffer, simulation_cycle, max_speed):
         self.id = id
         self.start_position = start_position
         self.x, self.y = start_position
@@ -46,8 +46,8 @@ class Rover:
         self.active_communications = 0                                                          # number of communications currently in the network
         self.number_of_known_obstacles = 0                                                      # relevant for evaluation of Environmental Awareness Ratio
         self.distance_to_target = distance_to_target(self.move_points, self.x, self.y, self.target_coordinates)          # distance to target following all move_points
-        self.speed = MAX_SPEED
-        self.max_speed = MAX_SPEED
+        self.speed = max_speed
+        self.max_speed = max_speed
         self.reached_waitingpoint = False
         self.reached_attentionpoint = False
         self.time_at_attentionpoint = None
@@ -278,7 +278,7 @@ class Rover:
                 if approval[0] == 1:    # Approval for requested timeslots
                     self.approval_waiting_point = 1
                     if self.reached_waitingpoint:
-                        self.speed = MAX_SPEED
+                        self.speed = self.max_speed
                 elif approval[0] == 0:  # Rejection for requested timeslots
                     self.approval_waiting_point = 0
                 elif approval[0] == 2:  # Request for earlier timeslots
