@@ -45,7 +45,7 @@ Ensure that the following requirements are met:
 - PADE must be installed. You can install PADE using `pip install pade`.
 - Works with Python version 3.9.
 
-## License
+## Sources
 
 Original simulation program:
 https://github.com/hsu-aut/RIVA_Decentralized_Communication
