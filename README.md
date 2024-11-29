@@ -23,6 +23,8 @@ git clone https://github.com/NiklasJobs/Control_of_Interaction_Area.git
 Modify the parameters in the `constants.py` file as needed.
 (For example, the following parameters can be adjusted: number of vehicles, number of simulation cycles, size of the vehicles, speed of the vehicles, priority of vehicles)
 
+The files contained in folder xy can be used to make extensive changes to the simulated environment and the waypoints used.
+
 **3. Start the Simulation**
 
 Navigate to the project directory in your terminal and start the simulation using one of the following commands:
