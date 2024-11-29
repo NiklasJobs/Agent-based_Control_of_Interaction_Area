@@ -1,6 +1,8 @@
 # Master's thesis Niklas Jobs
 
-A brief description of the project.
+The simulation program presented here is used to simulate two agent-based control systems for an interaction area in an AGV system. An interaction area is an area in which collisions between different vehicles can potentially occur. In the simulation program, an intersection with 4 entrances and exits is simulated as an example for an interaction area.
+The first implemented control system is a hierarchical control system in which there is a manager agent and several vehicle agents. The manager agent is responsible for collision detection and prevention. The vehicles must provide the manager agent with information and are dependent on the manager agent's clearance in order to pass the intersection. 
+The second implemented control system is a heterarchical control system consisting only of vehicle agents of equal rank. Collision detection and avoidance is carried out in parallel by all vehicle agents. Therefore, the vehicle agents exchange information directly with each other.
 
 ## Installation and Execution
 
@@ -42,8 +44,11 @@ When prompted for a username and password, simply press the `Enter` key.
 
 Ensure that the following requirements are met:
 
-- PADE must be installed. You can install PADE using `pip install pade`.
-- Works with Python version 3.9.
+- PADE must be installed. (version 2.2.5) You can install PADE using `pip install pade`.
+- pygame must be installed. (version 2.6.0)
+- shapely must be installed. (version 2.0.6)
+- twisted must be installed. (version 19.7.0)
+- Works with Python 3.9.19
 
 ## Sources
 
