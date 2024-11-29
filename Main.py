@@ -82,7 +82,7 @@ def main():
         rovers_to_remove_ids = set()
         
         # generating rover instances:
-        rovers = [Rover(ID, START_POSITIONS[ID], TARGET_COORDINATES[ID], WIDTH, HEIGHT, COMM_TYPE, simulation_time, move_points[ID], RADIUS[ID], Random_Route[ID], WAITING_POINT_ROUTE[Random_Route[ID]],KP_ROUTE[Random_Route[ID]],initial_priorities[ID],target_times[ID],Buffer[ID], sim_cycle) for ID in range(1, NUMBER_OF_ROVERS + 1)]
+        rovers = [Rover(ID, START_POSITIONS[ID], TARGET_COORDINATES[ID], WIDTH, HEIGHT, COMM_TYPE, simulation_time, move_points[ID], RADIUS[ID], Random_Route[ID], WAITING_POINT_ROUTE[Random_Route[ID]],KP_ROUTE[Random_Route[ID]],initial_priorities[ID],target_times[ID],Buffer[ID], sim_cycle,Max_Speed[ID]) for ID in range(1, NUMBER_OF_ROVERS + 1)]
 
         # Main loop
         running = True
