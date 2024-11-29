@@ -4,8 +4,6 @@ from world.functions import *
 from vehicle.rover.rover import Rover
 from vehicle.draw_functions import *
 from output_logger.functions import *
-#from collision_detection import IM_Collision_Avoidance
-from collision_detection import IM
 import pygame
 import sys
 import time
@@ -83,9 +81,8 @@ def main():
         positions ={} # Positions of every rover
         rovers_to_remove_ids = set()
         
-        # generating rover instances and IM:
+        # generating rover instances:
         rovers = [Rover(ID, START_POSITIONS[ID], TARGET_COORDINATES[ID], WIDTH, HEIGHT, COMM_TYPE, simulation_time, move_points[ID], RADIUS[ID], Random_Route[ID], WAITING_POINT_ROUTE[Random_Route[ID]],KP_ROUTE[Random_Route[ID]],initial_priorities[ID],target_times[ID],Buffer[ID], sim_cycle) for ID in range(1, NUMBER_OF_ROVERS + 1)]
-        im = IM(NUMBER_OF_ROVERS)
 
         # Main loop
         running = True
