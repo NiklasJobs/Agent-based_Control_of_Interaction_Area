@@ -10,7 +10,7 @@ The second implemented control system is a heterarchical control system consisti
 
 Follow these steps to download and run the project:
 
-#1. Download
+*1. Download*
 
 Clone the repository to your local machine:
 
@@ -18,12 +18,12 @@ bash
 git clone https://github.com/Niklas-22/Control_of_Interaction_Area.git
 
 
-2. Adjust Parameters
+*2. Adjust Parameters*
 
 Modify the parameters in the `constants.py` file as needed.
 (For example, the following parameters can be adjusted: number of vehicles, number of simulation cycles, size of the vehicles, speed of the vehicles, priority of vehicles)
 
-3. Start the Simulation
+*3. Start the Simulation*
 
 Navigate to the project directory in your terminal and start the simulation using one of the following commands:
 
@@ -39,11 +39,11 @@ bash
 Pade start-runtime PADE_Communication_hierarchisch.py
 
 
-4. Authentication
+*4. Authentication*
 
 When prompted for a username and password, simply press the `Enter` key.
 
-5. Evaluation
+*5. Evaluation*
 
 After all simulation cycles have been executed, certain KPIs are saved in the rover_times_data.csv file (under output_logger -> plotted_data). These can be used to evaluate the simulation experiments. 
 
