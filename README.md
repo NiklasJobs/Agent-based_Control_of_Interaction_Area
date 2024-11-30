@@ -45,7 +45,8 @@ Pade start-runtime PADE_Communication_hierarchisch.py
 
 When prompted for a username and password, simply press the `Enter` key.
 
-**5. Authentication**
+**5. Stop the Simulation**
+
 To exit the simulation program, press CTRL+C.
 
 **6. Evaluation**
