@@ -66,7 +66,11 @@ Ensure that the following requirements are met:
 - pygame must be installed. (version 2.6.0)
 - shapely must be installed. (version 2.0.6)
 - twisted must be installed. (version 19.7.0 / 20.3.0)
-- numpy must be installed (version 2.0.2)
+- numpy must be installed. (version 2.0.2)
+- jinja2 must be installed. (version 2.10.3)
+- MarkupSafe must be installed. (version 1.1.1)
+- itsdangerous must be installed. (version 1.1.0)
+- werkzeug must be installed. (version 0.16.0)
 
 
 ## Sources
