@@ -29,7 +29,7 @@ If necessary, the positions and distances of the waypoints can be calculated wit
 
 **3. Start the Simulation**
 
-Navigate to the project directory in your terminal and start the simulation using one of the following commands:
+Navigate to the project directory in your terminal and activate the virtual environment if necessary. Then start the simulation using one of the following commands:
 
 For heterarchical communication:
 
@@ -59,11 +59,15 @@ After all simulation cycles have been executed, certain KPIs are saved in the `r
 
 Ensure that the following requirements are met:
 
-- PADE must be installed. (version 2.2.5) You can install PADE using `pip install pade`.
+- Works with Python 3.9.19 --> If Python 3.9.19 does not work for you, try Python 3.7 
+- PADE must be installed. (version 2.2.5) You can install PADE using `pip install pade`. (if you have problems with the installation, make sure you are using Python 3.7)
 - pygame must be installed. (version 2.6.0)
 - shapely must be installed. (version 2.0.6)
 - twisted must be installed. (version 19.7.0)
-- Works with Python 3.9.19
+- numpy must be installed (version 2.0.2)
+
+For error-free execution of the program, PADE and all other required modules should be installed in a virtual environment.
+
 
 ## Sources
 
