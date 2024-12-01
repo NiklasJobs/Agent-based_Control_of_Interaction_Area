@@ -59,7 +59,7 @@ After all simulation cycles have been executed, certain KPIs are saved in the `r
 
 For error-free execution of the program, PADE and all other required modules should be installed in a virtual environment.
 
-Ensure that the following requirements are met:
+Ensure that the following requirements are met (see also `requirements.txt`):
 
 - Works with Python 3.9.19 --> If Python 3.9.19 does not work for you, try Python 3.7 
 - PADE must be installed. (version 2.2.5) You can install PADE using `pip install pade`. (if you have problems with the installation, make sure you are using Python 3.7 and install wheel using `pip install wheel`)
