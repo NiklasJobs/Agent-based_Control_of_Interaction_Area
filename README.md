@@ -23,7 +23,9 @@ git clone https://github.com/NiklasJobs/Agent-based_Control_of_Interaction_Area
 Modify the parameters in the `constants.py` file as needed.
 (For example, the following parameters can be adjusted: number of vehicles, number of simulation cycles, size of the vehicles, speed of the vehicles, priority of vehicles)
 
-The files contained in folder `auxiliary_setup_files` can be used to make extensive changes to the simulated environment and the used waypoints.
+The files contained in folder `auxiliary_setup_files` can be used to make extensive changes to the simulated environment and the used waypoints. 
+The map_generator can be used to change the placement of obstacles and thus the layout of the simulated environment.
+If necessary, the positions and distances of the waypoints can be calculated with file `Calculation_Waypoints.xlsx` and can then be inserted into the `constants.py` file.
 
 **3. Start the Simulation**
 
