@@ -15,7 +15,7 @@ Follow these steps to download and run the project:
 Clone the repository to your local machine:
 
 bash
-git clone https://github.com/NiklasJobs/Control_of_Interaction_Area.git
+git clone https://github.com/NiklasJobs/Agent-based_Control_of_Interaction_Area
 
 
 **2. Adjust Parameters**
